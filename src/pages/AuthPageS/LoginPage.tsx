@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
                     </Stack>
 
                     <Stack
-                        spacing={1}
+                        spacing={0}
                         alignItems="center"
                         width="100%"
                         marginTop={"3rem"}
@@ -68,6 +68,7 @@ const LoginPage: React.FC = () => {
                             size="large"
                             sx={{
                                 textTransform: "none",
+                                marginBottom: "1rem",
                             }}
                         >
                             Войти
@@ -82,6 +83,17 @@ const LoginPage: React.FC = () => {
                             }}
                         >
                             У меня еще нет аккаунта
+                        </Button>
+                        <Button
+                            variant="text"
+                            color="primary"
+                            onClick={() => navigate("/")}
+                            sx={{
+                                textTransform: "none",
+                                fontSize: "14px !important",
+                            }}
+                        >
+                            Забыл пароль
                         </Button>
                     </Stack>
                 </form>
