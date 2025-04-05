@@ -6,6 +6,7 @@ import NotFoundPage from "src/pages/NotFoundPage/NotFoundPage";
 import CheckEmailPage from "./pages/AuthPageS/CheckEmailPage";
 import LoginPage from "./pages/AuthPageS/LoginPage";
 import UserPage from "./pages/AuthPageS/UserPage";
+import ChatPage from "./pages/ChatPageS/ChatPage";
 
 export default function App() {
     return (
@@ -15,6 +16,7 @@ export default function App() {
                     <Route path="/" element={<SignInPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/check" element={<CheckEmailPage />} />
+                    <Route path="/chat" element={<ChatPage />} />
                     <Route path="/user" element={<UserPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
