@@ -38,11 +38,7 @@ const CheckEmailPage: React.FC = () => {
                 </Stack>
 
                 <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-                    <Stack
-                        spacing={3}
-                        alignItems="center"
-                        width="100%"
-                    >
+                    <Stack spacing={3} alignItems="center" width="100%">
                         <TextField
                             label="Ваш код"
                             fullWidth
