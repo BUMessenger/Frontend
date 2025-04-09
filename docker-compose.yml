@@ -4,9 +4,11 @@ networks:
 
 services:
   frontend:
+    image: bumessenger-frontend:latest
     build:
       context: .
       dockerfile: frontend.dockerfile
+    container_name: bumessenger-frontend
     command: npm run dev
     ports:
       - 4567:5173
