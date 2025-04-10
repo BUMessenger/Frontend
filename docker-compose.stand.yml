@@ -1,0 +1,16 @@
+networks:
+  frontend-net:
+    driver: bridge
+
+services:
+  frontend:
+    image: stand-frontend:latest
+    build:
+      context: .
+      dockerfile: frontend.dockerfile
+    container_name: stand-frontend
+    command: npm run dev
+    ports:
+      - 4567:5173
+    networks:
+      - frontend-net
