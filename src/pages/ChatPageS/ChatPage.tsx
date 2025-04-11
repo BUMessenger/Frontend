@@ -4,7 +4,7 @@ import LeftChatBar from "./components/LeftBarChat";
 const ChatPage: React.FC = () => {
     return (
         <>
-            <BackgroundBox imagePath="BackgroundBlurred.png" />
+            <BackgroundBox imagePath="/BackgroundBlurred.png" />
             <LeftChatBar />
         </>
     );

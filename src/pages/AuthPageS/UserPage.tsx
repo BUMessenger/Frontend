@@ -34,7 +34,7 @@ const UserPage: React.FC = () => {
 
     return (
         <>
-            <BackgroundBox imagePath="Background.png" />
+            <BackgroundBox imagePath="/Background.png" />
             <Stack
                 alignItems="center"
                 marginTop={"4rem"}
@@ -60,7 +60,7 @@ const UserPage: React.FC = () => {
                 </Stack>
 
                 <form onSubmit={handleSave} style={{ width: "100%" }}>
-                    <Stack spacing={"1.5rem"} alignItems="center" width="100%">
+                    <Stack spacing={"1.2rem"} alignItems="center" width="100%">
                         <TextField
                             label="Фамилия"
                             value={lastName}

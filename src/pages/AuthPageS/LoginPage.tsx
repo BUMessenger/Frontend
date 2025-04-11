@@ -28,20 +28,20 @@ const LoginPage: React.FC = () => {
 
     return (
         <>
-            <BackgroundBox imagePath="Background.png" />
+            <BackgroundBox imagePath="/Background.png" />
             <Stack
                 alignItems="center"
                 marginTop={"4rem"}
                 width="27.25rem"
                 mx="auto"
-                spacing={"3rem"}
+                spacing={"2.5rem"}
             >
                 <Typography variant="h1" component="h1">
                     Вход
                 </Typography>
 
                 <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-                    <Stack spacing={"1.5rem"} alignItems="center" width="100%">
+                    <Stack spacing={"1.2rem"} alignItems="center" width="100%">
                         <EmailTextField
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
