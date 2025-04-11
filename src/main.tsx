@@ -8,7 +8,6 @@ import { cfg } from "src/config/config";
 console.log(`App started with config ${JSON.stringify(cfg)}`);
 
 const client = new ApolloClient({
-    uri: cfg.graphqlEndpoint,
     cache: new InMemoryCache(),
 });
 
