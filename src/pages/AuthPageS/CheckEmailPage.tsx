@@ -28,7 +28,7 @@ const CheckEmailPage: React.FC = () => {
 
         const result = await codeCheck(fullEmail, code);
         if (result.success) {
-            navigate("/");
+            navigate("/user");
         } else if (result.error) {
             setNotification({
                 open: true,

@@ -15,7 +15,10 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<SignInPage />} />
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/check/:email/:domain" element={<CheckEmailPage />} />
+                    <Route
+                        path="/check/:email/:domain"
+                        element={<CheckEmailPage />}
+                    />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/user" element={<UserPage />} />
                     <Route path="*" element={<NotFoundPage />} />
