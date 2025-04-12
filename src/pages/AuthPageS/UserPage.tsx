@@ -9,12 +9,14 @@ import {
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundBox } from "src/components/ui/BackgroundBox";
+import { useAuth } from "src/hooks/useAuth";
 
 const UserPage: React.FC = () => {
     const [lastName, setLastName] = React.useState("");
     const [firstName, setFirstName] = React.useState("");
     const [middleName, setMiddleName] = React.useState("");
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,9 +29,13 @@ const UserPage: React.FC = () => {
         navigate(-1);
     };
 
-    const handleLogout = () => {
-        // Логика выхода из аккаунта
-        navigate("/login");
+    const handleLogout = async () => {
+        const result = await logout();
+        if (result.success) {
+            navigate("/login", { replace: true });
+        } else {
+            console.error("Logout failed:", result.error);
+        }
     };
 
     return (
