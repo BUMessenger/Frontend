@@ -149,17 +149,6 @@ const SignInPage: React.FC = () => {
                         >
                             У меня уже есть аккаунт
                         </Button>
-                        <Button
-                            variant="text"
-                            color="primary"
-                            onClick={() => navigate("/")}
-                            sx={{
-                                textTransform: "none",
-                                fontSize: "14px !important",
-                            }}
-                        >
-                            Забыл пароль
-                        </Button>
                     </Stack>
                 </form>
             </Stack>

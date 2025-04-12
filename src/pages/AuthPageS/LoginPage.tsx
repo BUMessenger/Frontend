@@ -1,10 +1,11 @@
-import { Button, Stack, Typography, Snackbar, Alert } from "@mui/material";
+import { Alert, Button, Snackbar, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundBox } from "src/components/ui/BackgroundBox";
 import EmailTextField from "src/components/ui/EmailTextField";
 import PasswordTextField from "src/components/ui/PasswordTextField";
 import { useAuth } from "src/hooks/useAuth";
+import { usePasswordRecovery } from "src/hooks/usePasswordRecovery";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -12,6 +13,8 @@ const LoginPage: React.FC = () => {
     const [emailError, setEmailError] = useState(false);
     const navigate = useNavigate();
     const { login, loading } = useAuth();
+    const { recoverPassword, isLoading: isRecoveryLoading } =
+        usePasswordRecovery();
 
     const [notification, setNotification] = useState({
         open: false,
@@ -35,6 +38,46 @@ const LoginPage: React.FC = () => {
                 open: true,
                 severity: "error",
                 message: result.error.message,
+            });
+        }
+    };
+
+    const handleForgotPassword = async () => {
+        if (!email) {
+            setNotification({
+                open: true,
+                severity: "error",
+                message: "Пожалуйста, введите email для восстановления пароля",
+            });
+            return;
+        }
+
+        validateEmail();
+        if (emailError) {
+            setNotification({
+                open: true,
+                severity: "error",
+                message: "Пожалуйста, введите корректный email",
+            });
+            return;
+        }
+
+        const result = await recoverPassword(email);
+
+        if (result.success) {
+            setNotification({
+                open: true,
+                severity: "success",
+                message:
+                    "Инструкции по восстановлению пароля отправлены на ваш email",
+            });
+        } else if (result.error) {
+            setNotification({
+                open: true,
+                severity: "error",
+                message:
+                    result.error.message ||
+                    "Не удалось отправить запрос на восстановление",
             });
         }
     };
@@ -110,13 +153,14 @@ const LoginPage: React.FC = () => {
                         <Button
                             variant="text"
                             color="primary"
-                            onClick={() => navigate("/")}
+                            onClick={handleForgotPassword} 
+                            disabled={isRecoveryLoading}
                             sx={{
                                 textTransform: "none",
                                 fontSize: "14px !important",
                             }}
                         >
-                            Забыл пароль
+                            {isRecoveryLoading ? "Отправка..." : "Забыл пароль"}
                         </Button>
                     </Stack>
                 </form>
