@@ -12,32 +12,28 @@ import {
 } from "@mui/material";
 import React from "react";
 
-type ChangePasswordDialogProps = {
+type ChangeNameDialogProps = {
     open: boolean;
     onClose: () => void;
-    onSubmit: (
-        oldPassword: string,
-        newPassword: string,
-        repeatPassword: string
-    ) => void;
-    oldPassword: string;
-    newPassword: string;
-    repeatPassword: string;
-    setOldPassword: (value: string) => void;
-    setNewPassword: (value: string) => void;
-    setRepeatPassword: (value: string) => void;
+    onSubmit: () => void;
+    lastName: string;
+    firstName: string;
+    fatherName: string;
+    setLastName: (value: string) => void;
+    setFirstName: (value: string) => void;
+    setFatherName: (value: string) => void;
 };
 
-export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
+export const ChangeNameDialog: React.FC<ChangeNameDialogProps> = ({
     open,
     onClose,
     onSubmit,
-    oldPassword,
-    newPassword,
-    repeatPassword,
-    setOldPassword,
-    setNewPassword,
-    setRepeatPassword,
+    lastName,
+    firstName,
+    fatherName,
+    setLastName,
+    setFirstName,
+    setFatherName,
 }) => {
     return (
         <Dialog
@@ -75,10 +71,10 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
                         alignSelf: "flex-start",
                         width: "100%",
                         fontWeight: 600,
-                        pr: 6, // для иконки закрытия
+                        pr: 6,
                     }}
                 >
-                    Смена пароля
+                    Изменение имени
                     <IconButton
                         onClick={onClose}
                         sx={{
@@ -98,45 +94,30 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
                         display: "flex",
                         flexDirection: "column",
                         gap: 2,
-                        paddingTop: 1,
-                        paddingBottom: 2,
                     }}
                 >
-                    <Stack spacing={2} width="100%" mt="2rem" mb="1rem">
+                    <Stack spacing={2} mt="2rem" mb="1rem">
                         <TextField
-                            label="Старый пароль"
-                            type="password"
+                            label="Фамилия"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             fullWidth
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
                             InputLabelProps={{ sx: { color: "#fff" } }}
                             InputProps={{ sx: { color: "#fff" } }}
                         />
                         <TextField
-                            label="Новый пароль"
-                            type="password"
+                            label="Имя"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             fullWidth
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
                             InputLabelProps={{ sx: { color: "#fff" } }}
                             InputProps={{ sx: { color: "#fff" } }}
                         />
                         <TextField
-                            label="Повторите новый пароль"
-                            type="password"
+                            label="Отчество"
+                            value={fatherName}
+                            onChange={(e) => setFatherName(e.target.value)}
                             fullWidth
-                            value={repeatPassword}
-                            onChange={(e) => setRepeatPassword(e.target.value)}
-                            error={
-                                repeatPassword.length > 0 &&
-                                newPassword !== repeatPassword
-                            }
-                            helperText={
-                                repeatPassword.length > 0 &&
-                                newPassword !== repeatPassword
-                                    ? "Пароли не совпадают"
-                                    : ""
-                            }
                             InputLabelProps={{ sx: { color: "#fff" } }}
                             InputProps={{ sx: { color: "#fff" } }}
                         />
@@ -157,11 +138,9 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
                     <Button
                         variant="contained"
                         sx={{ textTransform: "none" }}
-                        onClick={() =>
-                            onSubmit(oldPassword, newPassword, repeatPassword)
-                        }
+                        onClick={onSubmit}
                     >
-                        Сменить
+                        Сохранить
                     </Button>
                 </DialogActions>
             </Box>

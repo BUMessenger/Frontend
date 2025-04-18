@@ -11,8 +11,10 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundBox } from "src/components/ui/BackgroundBox";
 import { useAuth } from "src/hooks/useAuth";
+import { useUpdateUserName } from "src/hooks/useUpdateUserName";
 import { useUpdateUserPassword } from "src/hooks/useUpdateUserPassword";
 import { useUserName } from "src/hooks/useUserName";
+import { ChangeNameDialog } from "./components/ChangeNameDialog";
 import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
 
 const ViewUserPage: React.FC = () => {
@@ -23,6 +25,7 @@ const ViewUserPage: React.FC = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { getUserName, isLoading: loading } = useUserName();
+    const { updateUserName, isLoading: nameLoading } = useUpdateUserName();
 
     const [notification, setNotification] = React.useState({
         open: false,
@@ -44,6 +47,8 @@ const ViewUserPage: React.FC = () => {
     };
 
     const [passwordDialogOpen, setPasswordDialogOpen] = React.useState(false);
+    const [nameDialogOpen, setNameDialogOpen] = React.useState(false);
+
     const [oldPassword, setOldPassword] = React.useState("");
     const [newPassword, setNewPassword] = React.useState("");
     const [repeatPassword, setRepeatPassword] = React.useState("");
@@ -75,6 +80,29 @@ const ViewUserPage: React.FC = () => {
                 open: true,
                 severity: "error",
                 message: result.error?.message || "Ошибка при смене пароля",
+            });
+        }
+    };
+
+    const handleNameChange = async () => {
+        const result = await updateUserName({
+            surname: lastName,
+            name: firstName,
+            fathername: fatherName,
+        });
+
+        if (result.success) {
+            setNotification({
+                open: true,
+                severity: "success",
+                message: "Имя успешно обновлено",
+            });
+            setNameDialogOpen(false);
+        } else {
+            setNotification({
+                open: true,
+                severity: "error",
+                message: result.error?.message || "Ошибка при обновлении имени",
             });
         }
     };
@@ -161,9 +189,9 @@ const ViewUserPage: React.FC = () => {
                         size="large"
                         disabled={loading}
                         sx={{ textTransform: "none", marginBottom: "1rem" }}
-                        onClick={() => navigate("/editprofile")}
+                        onClick={() => setNameDialogOpen(true)}
                     >
-                        Редактировать
+                        Изменить имя
                     </Button>
 
                     <Stack
@@ -198,6 +226,7 @@ const ViewUserPage: React.FC = () => {
                         </Button>
                     </Stack>
                 </Stack>
+
                 <Snackbar
                     open={notification.open}
                     autoHideDuration={12000}
@@ -211,43 +240,15 @@ const ViewUserPage: React.FC = () => {
                         {notification.message}
                     </Alert>
                 </Snackbar>
+
                 <ChangePasswordDialog
                     open={passwordDialogOpen}
                     onClose={() => setPasswordDialogOpen(false)}
                     onSubmit={async (old, newPass, repeat) => {
-                        if (newPass !== repeat) {
-                            setNotification({
-                                open: true,
-                                severity: "error",
-                                message:
-                                    "Новый пароль и его повтор должны совпадать",
-                            });
-                            return;
-                        }
-
-                        const result = await updatePassword({
-                            oldPassword: old,
-                            newPassword: newPass,
-                        });
-                        if (result.success) {
-                            setNotification({
-                                open: true,
-                                severity: "success",
-                                message: "Пароль успешно изменён",
-                            });
-                            setPasswordDialogOpen(false);
-                            setOldPassword("");
-                            setNewPassword("");
-                            setRepeatPassword("");
-                        } else {
-                            setNotification({
-                                open: true,
-                                severity: "error",
-                                message:
-                                    result.error?.message ||
-                                    "Ошибка при смене пароля",
-                            });
-                        }
+                        setOldPassword(old);
+                        setNewPassword(newPass);
+                        setRepeatPassword(repeat);
+                        await handlePasswordChange();
                     }}
                     oldPassword={oldPassword}
                     newPassword={newPassword}
@@ -255,6 +256,18 @@ const ViewUserPage: React.FC = () => {
                     setOldPassword={setOldPassword}
                     setNewPassword={setNewPassword}
                     setRepeatPassword={setRepeatPassword}
+                />
+
+                <ChangeNameDialog
+                    open={nameDialogOpen}
+                    onClose={() => setNameDialogOpen(false)}
+                    onSubmit={handleNameChange}
+                    lastName={lastName}
+                    firstName={firstName}
+                    fatherName={fatherName}
+                    setLastName={setLastName}
+                    setFirstName={setFirstName}
+                    setFatherName={setFatherName}
                 />
             </Stack>
         </>
