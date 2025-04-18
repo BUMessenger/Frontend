@@ -11,11 +11,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundBox } from "src/components/ui/BackgroundBox";
 import { useAuth } from "src/hooks/useAuth";
+import { useDeleteUser } from "src/hooks/useDeleteUser";
 import { useUpdateUserName } from "src/hooks/useUpdateUserName";
 import { useUpdateUserPassword } from "src/hooks/useUpdateUserPassword";
 import { useUserName } from "src/hooks/useUserName";
 import { ChangeNameDialog } from "./components/ChangeNameDialog";
 import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
+import { DeleteUserDialog } from "./components/DeleteUserDialog";
 
 const ViewUserPage: React.FC = () => {
     const [lastName, setLastName] = React.useState("");
@@ -53,6 +55,21 @@ const ViewUserPage: React.FC = () => {
     const [newPassword, setNewPassword] = React.useState("");
     const [repeatPassword, setRepeatPassword] = React.useState("");
     const { updatePassword } = useUpdateUserPassword();
+    const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+    const { deleteUser } = useDeleteUser();
+    const handleDeleteUser = async () => {
+        const result = await deleteUser();
+        if (result.success) {
+            navigate("/login", { replace: true });
+        } else {
+            setNotification({
+                open: true,
+                severity: "error",
+                message:
+                    result.error?.message || "Ошибка при удалении аккаунта",
+            });
+        }
+    };
 
     const handlePasswordChange = async () => {
         if (newPassword !== repeatPassword) {
@@ -225,7 +242,7 @@ const ViewUserPage: React.FC = () => {
                         <Button
                             variant="text"
                             color="primary"
-                            onClick={() => logout()}
+                            onClick={() => handleLogout()}
                             sx={{
                                 textTransform: "none",
                                 fontSize: "14px !important",
@@ -244,6 +261,7 @@ const ViewUserPage: React.FC = () => {
                                 justifyContent: "flex-start",
                                 pl: "1rem",
                             }}
+                            onClick={() => setDeleteDialogOpen(true)}
                         >
                             Удалить аккаунт
                         </Button>
@@ -280,7 +298,6 @@ const ViewUserPage: React.FC = () => {
                     setNewPassword={setNewPassword}
                     setRepeatPassword={setRepeatPassword}
                 />
-
                 <ChangeNameDialog
                     open={nameDialogOpen}
                     onClose={() => setNameDialogOpen(false)}
@@ -291,6 +308,14 @@ const ViewUserPage: React.FC = () => {
                     setLastName={setLastName}
                     setFirstName={setFirstName}
                     setFatherName={setFatherName}
+                />
+                <DeleteUserDialog
+                    open={deleteDialogOpen}
+                    onClose={() => setDeleteDialogOpen(false)}
+                    onConfirm={async () => {
+                        await handleDeleteUser();
+                        setDeleteDialogOpen(false);
+                    }}
                 />
             </Stack>
         </>

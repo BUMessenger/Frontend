@@ -340,6 +340,7 @@ export const useAuth = () => {
         authFetch,
         refreshTokens,
         login,
+        signin,
         logout,
         codeCheck,
         loading,
