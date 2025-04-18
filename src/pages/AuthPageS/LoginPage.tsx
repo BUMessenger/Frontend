@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
 
         const result = await login(email, password);
         if (result.success) {
-            navigate("/user");
+            navigate("/profile");
         } else if (result.error) {
             setNotification({
                 open: true,
