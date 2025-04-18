@@ -89,7 +89,7 @@ let theme = createTheme({
     palette: {
         mode: "dark",
         background: {
-            paper: "#8A0707",
+            paper: "#141218",
         },
         primary: {
             main: "#FFFFFF",
