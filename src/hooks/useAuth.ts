@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cfg } from "src/config/config";
 
 type AuthError = {
@@ -11,38 +12,64 @@ type Tokens = {
     refreshToken: string;
 };
 
+type JWTPayload = {
+    exp: number;
+};
+
 export const useAuth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<AuthError | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(
+        () => !!localStorage.getItem("accessToken")
+    );
 
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!localStorage.getItem("accessToken");
-    });
+    const refreshTimer = useRef<NodeJS.Timeout | null>(null);
 
     const setAuthTokens = (accessToken: string, refreshToken: string) => {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         setIsAuthenticated(true);
+        scheduleRefreshToken(accessToken);
     };
 
-    const refreshTokens = async (): Promise<Tokens | null> => {
+    const clearAuthTokens = () => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        setIsAuthenticated(false);
+        if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    };
+
+    const scheduleRefreshToken = (accessToken: string) => {
+        const decoded: JWTPayload = jwtDecode(accessToken);
+        const expiresAt = decoded.exp * 1000;
+        const now = Date.now();
+        const refreshTime = expiresAt - now - 30000; // за 30 секунд до истечения
+
+        if (refreshTime <= 0) {
+            refreshTokens();
+            return;
+        }
+
+        if (refreshTimer.current) clearTimeout(refreshTimer.current);
+        refreshTimer.current = setTimeout(refreshTokens, refreshTime);
+    };
+
+    const refreshTokens = useCallback(async (): Promise<Tokens | null> => {
         const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) return null;
+        if (!refreshToken) {
+            clearAuthTokens();
+            return null;
+        }
 
         try {
             const response = await fetch(`${cfg.apiHost}auth/refresh`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refreshToken }),
             });
 
             if (!response.ok) {
-                if (response.status === 403 || response.status === 404) {
-                    localStorage.removeItem("accessToken");
-                    localStorage.removeItem("refreshToken");
-                }
+                clearAuthTokens();
                 return null;
             }
 
@@ -50,17 +77,15 @@ export const useAuth = () => {
             setAuthTokens(data.accessToken, data.refreshToken);
             return data;
         } catch (err) {
-            console.error("Refresh token error:", err);
+            clearAuthTokens();
             return null;
         }
-    };
+    }, []);
 
     const authFetch = async (input: RequestInfo, init?: RequestInit) => {
         const accessToken = localStorage.getItem("accessToken");
         const headers = new Headers(init?.headers);
-        if (accessToken) {
-            headers.set("Authorization", `Bearer ${accessToken}`);
-        }
+        if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
 
         let response = await fetch(input, { ...init, headers });
 
@@ -69,6 +94,8 @@ export const useAuth = () => {
             if (newTokens) {
                 headers.set("Authorization", `Bearer ${newTokens.accessToken}`);
                 response = await fetch(input, { ...init, headers });
+            } else {
+                clearAuthTokens();
             }
         }
 
@@ -82,56 +109,22 @@ export const useAuth = () => {
         try {
             const response = await fetch(`${cfg.apiHost}auth/login`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                let errorMessage = "Произошла неизвестная ошибка при входе";
-                let status = response.status;
-
-                if (response.status === 403) {
-                    errorMessage = errorData?.detail || "Неверный пароль";
-                } else if (response.status === 404) {
-                    errorMessage =
-                        errorData?.detail ||
-                        "Пользователь с указанным email не найден";
-                } else if (response.status === 500) {
-                    errorMessage =
-                        errorData?.detail || "Внутренняя ошибка сервера";
-                }
-
-                setError({ status, message: errorMessage });
-                return {
-                    success: false,
-                    error: { status, message: errorMessage },
-                };
+                setError({ status: response.status, message: "Ошибка входа" });
+                return { success: false, error };
             }
 
             const data = await response.json();
-
-            if (data.accessToken && data.refreshToken) {
-                setAuthTokens(data.accessToken, data.refreshToken);
-            }
+            setAuthTokens(data.accessToken, data.refreshToken);
 
             return { success: true, error: null };
         } catch (err) {
-            const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "Произошла неизвестная ошибка";
-
-            setError({ status: 500, message: errorMessage });
-            return {
-                success: false,
-                error: { status: 500, message: errorMessage },
-            };
+            setError({ status: 500, message: "Внутренняя ошибка сервера" });
+            return { success: false, error };
         } finally {
             setLoading(false);
         }
@@ -263,7 +256,7 @@ export const useAuth = () => {
         setError(null);
 
         const refreshToken = localStorage.getItem("refreshToken");
-        const accessToken = localStorage.getItem("accessToken"); // Получаем accessToken для заголовка
+        const accessToken = localStorage.getItem("accessToken");
 
         if (!refreshToken) {
             setError({
@@ -283,7 +276,7 @@ export const useAuth = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `${accessToken}`, // Добавляем Authorization header
+                    Authorization: `${accessToken}`,
                 },
                 body: JSON.stringify({ refreshToken }),
             });
@@ -308,9 +301,7 @@ export const useAuth = () => {
                 };
             }
 
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            setIsAuthenticated(false);
+            clearAuthTokens();
             console.log("Logout successful");
             return { success: true, error: null };
         } catch (err) {
@@ -329,14 +320,28 @@ export const useAuth = () => {
         }
     };
 
+    useEffect(() => {
+        const existingToken = localStorage.getItem("accessToken");
+        if (existingToken) {
+            const decoded: JWTPayload = jwtDecode(existingToken);
+            if (decoded.exp * 1000 > Date.now()) {
+                scheduleRefreshToken(existingToken);
+            } else {
+                refreshTokens();
+            }
+        }
+        return () => {
+            if (refreshTimer.current) clearTimeout(refreshTimer.current);
+        };
+    }, [refreshTokens]);
+
     return {
         isAuthenticated,
         authFetch,
         refreshTokens,
         login,
-        signin,
-        codeCheck,
         logout,
+        codeCheck,
         loading,
         error,
     };

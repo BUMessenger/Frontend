@@ -5,8 +5,9 @@ import SignInPage from "src/pages/AuthPageS/SignInPage";
 import NotFoundPage from "src/pages/NotFoundPage/NotFoundPage";
 import CheckEmailPage from "./pages/AuthPageS/CheckEmailPage";
 import LoginPage from "./pages/AuthPageS/LoginPage";
-import UserPage from "./pages/AuthPageS/UserPage";
+import ViewUserPage from "./pages/UserPageS/ViewUserPage";
 import ChatPage from "./pages/ChatPageS/ChatPage";
+import EditUserPage from "./pages/UserPageS/EditUserPage";
 
 export default function App() {
     return (
@@ -20,7 +21,8 @@ export default function App() {
                         element={<CheckEmailPage />}
                     />
                     <Route path="/chat" element={<ChatPage />} />
-                    <Route path="/user" element={<UserPage />} />
+                    <Route path="/profile" element={<ViewUserPage />} />
+                    <Route path="/editprofile" element={<EditUserPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </PageLayout>
