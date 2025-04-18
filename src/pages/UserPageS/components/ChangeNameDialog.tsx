@@ -74,7 +74,7 @@ export const ChangeNameDialog: React.FC<ChangeNameDialogProps> = ({
                         pr: 6,
                     }}
                 >
-                    Изменение имени
+                    Изменение ФИО
                     <IconButton
                         onClick={onClose}
                         sx={{

@@ -161,7 +161,13 @@ const ViewUserPage: React.FC = () => {
                     </IconButton>
                 </Stack>
 
-                <Stack spacing={2} width="100%">
+                <Stack
+                    spacing={2}
+                    width="100%"
+                    sx={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                    padding={3}
+                    borderRadius="2rem"
+                >
                     {[
                         { label: "Фамилия", value: lastName },
                         { label: "Имя", value: firstName },
@@ -181,25 +187,26 @@ const ViewUserPage: React.FC = () => {
                     ))}
                 </Stack>
 
-                <Stack alignItems="center" width="100%" marginTop="3rem">
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        fullWidth
-                        size="large"
-                        disabled={loading}
-                        sx={{ textTransform: "none", marginBottom: "1rem" }}
-                        onClick={() => setNameDialogOpen(true)}
-                    >
-                        Изменить имя
-                    </Button>
-
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        width="calc(100% + 1rem)"
-                    >
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    width="calc(100% + 2rem)"
+                >
+                    <Stack>
+                        <Button
+                            variant="text"
+                            color="primary"
+                            onClick={() => setNameDialogOpen(true)}
+                            sx={{
+                                textTransform: "none",
+                                fontSize: "14px !important",
+                                justifyContent: "flex-start",
+                                pl: "1rem",
+                            }}
+                        >
+                            Изменить ФИО
+                        </Button>
                         <Button
                             variant="text"
                             color="primary"
@@ -207,22 +214,38 @@ const ViewUserPage: React.FC = () => {
                             sx={{
                                 textTransform: "none",
                                 fontSize: "14px !important",
+                                justifyContent: "flex-start",
+                                pl: "1rem",
                             }}
                         >
                             Сменить пароль
                         </Button>
-
+                    </Stack>
+                    <Stack>
                         <Button
                             variant="text"
                             color="primary"
-                            onClick={handleLogout}
-                            disabled={loading}
+                            onClick={() => logout()}
                             sx={{
                                 textTransform: "none",
                                 fontSize: "14px !important",
+                                justifyContent: "flex-start",
+                                pl: "1rem",
                             }}
                         >
                             Выйти из аккаунта
+                        </Button>
+                        <Button
+                            variant="text"
+                            color="primary"
+                            sx={{
+                                textTransform: "none",
+                                fontSize: "14px !important",
+                                justifyContent: "flex-start",
+                                pl: "1rem",
+                            }}
+                        >
+                            Удалить аккаунт
                         </Button>
                     </Stack>
                 </Stack>
