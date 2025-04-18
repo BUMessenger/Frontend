@@ -11,7 +11,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundBox } from "src/components/ui/BackgroundBox";
 import { useAuth } from "src/hooks/useAuth";
+import { useUpdateUserPassword } from "src/hooks/useUpdateUserPassword";
 import { useUserName } from "src/hooks/useUserName";
+import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
 
 const ViewUserPage: React.FC = () => {
     const [lastName, setLastName] = React.useState("");
@@ -38,6 +40,42 @@ const ViewUserPage: React.FC = () => {
             navigate("/login", { replace: true });
         } else {
             console.error("Logout failed:", result.error);
+        }
+    };
+
+    const [passwordDialogOpen, setPasswordDialogOpen] = React.useState(false);
+    const [oldPassword, setOldPassword] = React.useState("");
+    const [newPassword, setNewPassword] = React.useState("");
+    const [repeatPassword, setRepeatPassword] = React.useState("");
+    const { updatePassword } = useUpdateUserPassword();
+
+    const handlePasswordChange = async () => {
+        if (newPassword !== repeatPassword) {
+            setNotification({
+                open: true,
+                severity: "error",
+                message: "Новый пароль и его повтор должны совпадать",
+            });
+            return;
+        }
+
+        const result = await updatePassword({ oldPassword, newPassword });
+        if (result.success) {
+            setNotification({
+                open: true,
+                severity: "success",
+                message: "Пароль успешно изменён",
+            });
+            setPasswordDialogOpen(false);
+            setOldPassword("");
+            setNewPassword("");
+            setRepeatPassword("");
+        } else {
+            setNotification({
+                open: true,
+                severity: "error",
+                message: result.error?.message || "Ошибка при смене пароля",
+            });
         }
     };
 
@@ -137,7 +175,7 @@ const ViewUserPage: React.FC = () => {
                         <Button
                             variant="text"
                             color="primary"
-                            onClick={() => navigate("/change-password")}
+                            onClick={() => setPasswordDialogOpen(true)}
                             sx={{
                                 textTransform: "none",
                                 fontSize: "14px !important",
@@ -173,6 +211,51 @@ const ViewUserPage: React.FC = () => {
                         {notification.message}
                     </Alert>
                 </Snackbar>
+                <ChangePasswordDialog
+                    open={passwordDialogOpen}
+                    onClose={() => setPasswordDialogOpen(false)}
+                    onSubmit={async (old, newPass, repeat) => {
+                        if (newPass !== repeat) {
+                            setNotification({
+                                open: true,
+                                severity: "error",
+                                message:
+                                    "Новый пароль и его повтор должны совпадать",
+                            });
+                            return;
+                        }
+
+                        const result = await updatePassword({
+                            oldPassword: old,
+                            newPassword: newPass,
+                        });
+                        if (result.success) {
+                            setNotification({
+                                open: true,
+                                severity: "success",
+                                message: "Пароль успешно изменён",
+                            });
+                            setPasswordDialogOpen(false);
+                            setOldPassword("");
+                            setNewPassword("");
+                            setRepeatPassword("");
+                        } else {
+                            setNotification({
+                                open: true,
+                                severity: "error",
+                                message:
+                                    result.error?.message ||
+                                    "Ошибка при смене пароля",
+                            });
+                        }
+                    }}
+                    oldPassword={oldPassword}
+                    newPassword={newPassword}
+                    repeatPassword={repeatPassword}
+                    setOldPassword={setOldPassword}
+                    setNewPassword={setNewPassword}
+                    setRepeatPassword={setRepeatPassword}
+                />
             </Stack>
         </>
     );
